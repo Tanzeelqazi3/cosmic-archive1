@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cosmic Archive | Deep Space Explorer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 620px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    header h1 {
+      font-size: 2rem;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+    header p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-btn {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: #38bdf8;
+      color: #0b0f19;
+      border-color: #38bdf8;
+      font-weight: 600;
+    }
+    .status-badge {
+      display: inline-block;
+      align-self: flex-start;
+      background: #131b2e;
+      border: 1px solid #1e293b;
+      color: #4ade80;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .card {
+      background: #131b2e;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+    .media-box {
+      width: 100%;
+      height: 360px;
+      background-color: #05070f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .media-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .card-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .tag-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .date-tag {
+      font-size: 0.8rem;
+      color: #38bdf8;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .title {
+      font-size: 1.4rem;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+    .explanation {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 14px;
+      border-top: 1px solid #1e293b;
+    }
+    .action-btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .action-btn:hover {
+      background: #1d4ed8;
+    }
+    .meta-text {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+    <header>
+      <h1>Cosmic Archive</h1>
+      <p>Explore high-resolution deep-space photography and astronomical records.</p>
+    </header>
+
+    <nav class="filter-bar" aria-label="Celestial category navigation">
+      <button class="filter-btn active" data-query="nebula">Nebulae</button>
+      <button class="filter-btn" data-query="galaxy">Galaxies</button>
+      <button class="filter-btn" data-query="jupiter">Jupiter</button>
+      <button class="filter-btn" data-query="mars">Mars</button>
+      <button class="filter-btn" data-query="black hole">Deep Cosmos</button>
+    </nav>
+
+    <div class="status-badge" id="statusBadge">Status: Connecting...</div>
+
+    <article class="card">
+      <div class="media-box" id="mediaBox">
+        <span style="color: #64748b;">Loading cosmic asset...</span>
+      </div>
+      <div class="card-body">
+        <div class="tag-row">
+          <span class="date-tag" id="targetTag">ARCHIVE TARGET: NEBULA</span>
+          <span class="meta-text" id="centerTag">NASA / JPL</span>
+        </div>
+        <h2 class="title" id="itemTitle">Querying celestial registry...</h2>
+        <p class="explanation" id="itemDescription">Retrieving high-resolution observations and mission logs...</p>
+        
+        <div class="controls">
+          <span class="meta-text" id="endpointDisplay">Endpoint: images-api.nasa.gov</span>
+          <button class="action-btn" id="nextBtn">Next Discovery</button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    /**
+     * Cosmic Archive - Client-Side Data Controller
+     * Author: Tanzeel
+     * Context: IXD Sheridan College - API Integration & System Design
+     *
+     * CITATIONS & ATTRIBUTION (Sheridan CodeCite Compliance):
+     * 1. Data Source: NASA Image and Video Library REST API (https://images-api.nasa.gov)
+     *    Selected as a public, keyless endpoint to eliminate HTTP 403 demo-key rate limits.
+     * 2. Academic Foundation: Asynchronous fetch structure, error handling, and DOM
+     *    manipulation patterns adapted from class lectures by Harold Sikkema (Sheridan College).
+     * 3. AI Assistance: Generative AI (Gemini) was used interactively to scaffold defensive
+     *    try/catch logic, array filtering, and CodeCite-compliant documentation.
+     *    Layout styling, endpoint pivoting, and state design decisions are author-owned.
+     */
+
+    let currentQuery = "nebula";
+    let activeItems = [];
+    let currentIndex = 0;
+
+    const statusBadge = document.getElementById("statusBadge");
+    const mediaBox = document.getElementById("mediaBox");
+    const targetTag = document.getElementById("targetTag");
+    const centerTag = document.getElementById("centerTag");
+    const itemTitle = document.getElementById("itemTitle");
+    const itemDescription = document.getElementById("itemDescription");
+    const nextBtn = document.getElementById("nextBtn");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+
+    /**
+     * Queries NASA's open endpoint and extracts valid assets
+     */
+    async function fetchCosmicData(query) {
+      statusBadge.textContent = "Status: Querying API...";
+      statusBadge.style.color = "#38bdf8";
+
+      // Uses NASA's open image and telemetry search endpoint (zero keys needed, no 403 blocks)
+      const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        const result = await response.json();
+
+        // Extract items that contain valid image links and data blocks
+        activeItems = (result.collection.items || []).filter(item => 
+          item.links && item.links.length > 0 && item.data && item.data.length > 0
+        );
+
+        if (activeItems.length === 0) {
+          throw new Error("No telemetry items located.");
+        }
+
+        currentIndex = 0;
+        renderActiveItem();
+
+        statusBadge.textContent = "Status: 200 OK (Live Stream)";
+        statusBadge.style.color = "#4ade80";
+      } catch (err) {
+        // Defensive error handling: update interface with failure state rather than crashing
+        console.error("Fetch failure:", err);
+        statusBadge.textContent = "Status: Fetch Error";
+        statusBadge.style.color = "#f87171";
+        itemTitle.textContent = "Observation Unavailable";
+        itemDescription.textContent = err.message;
+        mediaBox.innerHTML = `<span style="color: #f87171;">Failed to load image</span>`;
+      }
+    }
+
+    /**
+     * Injects the active observation data directly into the DOM
+     */
+    function renderActiveItem() {
+      if (!activeItems.length) return;
+      const current = activeItems[currentIndex];
+      const data = current.data[0];
+      const imageUrl = current.links[0].href;
+
+      itemTitle.textContent = data.title || "Untitled Celestial Phenomenon";
+      itemDescription.textContent = data.description || "No observation log provided for this archive index.";
+      targetTag.textContent = `TARGET: ${currentQuery.toUpperCase()}`;
+      centerTag.textContent = data.center || "NASA";
+
+      mediaBox.innerHTML = `<img src="${imageUrl}" alt="${data.title}" />`;
+    }
+
+    // Category button click handling
+    filterButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentQuery = btn.dataset.query;
+        fetchCosmicData(currentQuery);
+      });
+    });
+
+    // Cycle through observations within the cached search array
+    nextBtn.addEventListener("click", () => {
+      if (activeItems.length > 0) {
+        currentIndex = (currentIndex + 1) % activeItems.length;
+        renderActiveItem();
+      }
+    });
+
+    // Initial query on page load
+    fetchCosmicData(currentQuery);
+  </script>
+
+</body>
+</html>
